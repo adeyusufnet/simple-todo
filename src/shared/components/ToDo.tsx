@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useDebounce } from "../hooks/debounce";
 import InputComponent from "./SimpleInput";
 import { usePagination } from "../hooks/pagination";
@@ -129,6 +129,21 @@ export default function ToDoComponent() {
     // DELETE
     const handleDelete = (id: any) => setData(data.filter((todo: any) => todo.id !== id));
 
+    // SORTING
+    const handleSorting = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const direction = e?.target.value;
+
+        const sortedData = [...data].sort((a: any, b: any) => {
+            if (direction === "asc") {
+                return a.name.localeCompare(b.name);
+            }
+
+            return b.name.localeCompare(a.name);
+        });
+
+        setData(sortedData);
+    };
+
     // DELETE MULTIPLE DATA
     const handleDeleteMultiple = () => {
         setData((prev: any[]) =>
@@ -157,7 +172,7 @@ export default function ToDoComponent() {
         }
     }
 
-    const memoizeElement = () => {
+    const cardList = () => {
         return (
             <>
                 {currentItems?.map((result: any) => (
@@ -192,6 +207,36 @@ export default function ToDoComponent() {
                     </div>
                 ))}
             </>
+        )
+    }
+
+    const dropdownElement = () => {
+        return (
+            <div style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "5px"
+            }}>
+                <h4 style={{
+                    fontSize: "16px",
+                    fontWeight: "400"
+                }}>Sort By:</h4>
+                <select
+                    name="direction"
+                    id="direction"
+                    style={{
+                        backgroundColor: "transparent",
+                        color: "black",
+                        padding: "5px 10px",
+                        borderRadius: "5px"
+                    }}
+                    onChange={handleSorting}
+                >
+                    <option defaultValue="" disabled>Sorting</option>
+                    <option value="asc">A - Z</option>
+                    <option value="desc">Z - A</option>
+                </select>
+            </div>
         )
     }
 
@@ -272,6 +317,7 @@ export default function ToDoComponent() {
                     inputValue={search || ""}
                     onChange={(value: any) => setSearch(value)}
                 />
+                {dropdownElement()}
                 <div style={{
                     display: "flex",
                     justifyContent: "space-between",
@@ -305,7 +351,7 @@ export default function ToDoComponent() {
                 {!loading && filterData?.length === 0 && <span>Yah, datanya gak ada...</span>}
                 {!loading && filterData?.length > 0 && (
                     <Suspense fallback={<span>loading element</span>}>
-                        {memoizeElement()}
+                        {cardList()}
                     </Suspense>
                 )}
             </div>
