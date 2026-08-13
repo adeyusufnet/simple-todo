@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useDebounce } from "../hooks/debounce";
 import InputComponent from "./SimpleInput";
 import { usePagination } from "../hooks/pagination";
@@ -18,8 +18,10 @@ export default function ToDoComponent() {
     const [formData, setFormData] = useState({
         id: null,
         name: "",
-        completed: false
+        completed: false,
     })
+
+    const [listId, setListId] = useState<any>([])
 
     const debounceInput = useDebounce(search, 1000);
 
@@ -47,9 +49,7 @@ export default function ToDoComponent() {
         e.preventDefault();
 
         // Validasi
-        if (!formData.name.trim()) {
-            return;
-        }
+        if (!formData.name.trim()) return;
 
         setLoading(true)
 
@@ -106,20 +106,37 @@ export default function ToDoComponent() {
 
     // UPDATE status completed
     const toggleTodo = (id: any) => {
-        setData(
-            data.map((todo: any) =>
+        setData((prev: any[]) => {
+            const updatedData = prev.map((todo: any) =>
                 todo.id === id
                     ? {
                         ...todo,
                         completed: !todo.completed,
                     }
                     : todo
-            )
-        );
+            );
+
+            setListId(
+                updatedData
+                    .filter((todo: any) => todo.completed)
+                    .map((todo: any) => todo.id)
+            );
+
+            return updatedData;
+        });
     };
 
     // DELETE
     const handleDelete = (id: any) => setData(data.filter((todo: any) => todo.id !== id));
+
+    // DELETE MULTIPLE DATA
+    const handleDeleteMultiple = () => {
+        setData((prev: any[]) =>
+            prev.filter((todo: any) => !listId.includes(todo.id))
+        );
+
+        setListId([]);
+    };
 
     // Cancel edit
     const handleCancel = () => {
@@ -129,8 +146,6 @@ export default function ToDoComponent() {
             completed: false,
         });
     };
-
-    const getData = () => localStorage?.setItem("todos", JSON.stringify(data))
 
     const getFilterData = () => {
         try {
@@ -142,7 +157,7 @@ export default function ToDoComponent() {
         }
     }
 
-    const memoizeElement = useMemo(() => {
+    const memoizeElement = () => {
         return (
             <>
                 {currentItems?.map((result: any) => (
@@ -158,7 +173,6 @@ export default function ToDoComponent() {
                         }} key={result?.id} onClick={() => toggleTodo(result?.id)}>
                             <span
                                 className={result.completed ? "completed" : ""}
-                                onClick={() => toggleTodo(result.id)}
                                 style={{
                                     display: "flex",
                                     justifyContent: "flex-start"
@@ -179,9 +193,20 @@ export default function ToDoComponent() {
                 ))}
             </>
         )
-    }, [currentItems])
+    }
 
-    useEffect(() => { getData() }, [])
+    useEffect(() => {
+        if (data?.length > 0) {
+            localStorage.setItem("todos", JSON.stringify(data))
+
+            const updateData = data
+                .filter((todo: any) => todo.completed)
+                .map((todo: any) => todo.id)
+
+            setListId(updateData)
+        }
+    }, [data])
+
     useEffect(() => { getFilterData() }, [debounceInput, data])
 
     return (
@@ -247,16 +272,48 @@ export default function ToDoComponent() {
                     inputValue={search || ""}
                     onChange={(value: any) => setSearch(value)}
                 />
-                <h3 style={{ marginTop: "10px" }}>Result: {filterData?.length} ToDo</h3>
+                <div style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: 'center',
+                    marginTop: "10px",
+                    width: "100%"
+                }}>
+                    <h3 style={{ marginTop: "10px" }}>Result: {filterData?.length} ToDo</h3>
+                    <div style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "5px"
+                    }}>{listId?.length > 0 ? (
+                        <>
+                            <span style={{
+                                fontWeight: "600"
+                            }}>Selected: {listId?.length} Items</span>
+                            <button onClick={handleDeleteMultiple} style={{
+                                color: "red",
+                                padding: 0,
+                                border: "none",
+                                outline: "none",
+                                backgroundColor: "transparent",
+                                cursor: "pointer"
+                            }}>Delete</button>
+                        </>
+                    ) : null}
+                    </div>
+                </div>
                 {loading && <span>tunggu dulu...</span>}
                 {!loading && filterData?.length === 0 && <span>Yah, datanya gak ada...</span>}
-                {!loading && filterData?.length > 0 && memoizeElement}
+                {!loading && filterData?.length > 0 && (
+                    <Suspense fallback={<span>loading element</span>}>
+                        {memoizeElement()}
+                    </Suspense>
+                )}
             </div>
             {!loading && filterData?.length !== 0 && (
                 <PaginationComponent
                     currentPage={currentPage}
                     totalPages={totalPages}
-                    currentItems={currentItems}
+                    currentItems={filterData}
                     nextPage={nextPage}
                     prevPage={prevPage}
                     goToPage={goToPage}
