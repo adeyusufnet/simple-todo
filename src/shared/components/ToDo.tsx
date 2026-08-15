@@ -5,6 +5,7 @@ import { usePagination } from "../hooks/pagination";
 import PaginationComponent from "./Pagination";
 import SearchComponent from "./Search";
 import DatePickerComponent from "./DatePicker";
+import ModalDialogComponent from "./ModalDialog";
 
 export default function ToDoComponent() {
     const [data, setData] = useState(() => {
@@ -15,28 +16,29 @@ export default function ToDoComponent() {
     const [search, setSearch] = useState("")
     const [loading, setLoading] = useState<boolean>(false)
     const [success, setSuccess] = useState<boolean>(false)
+    const [showModal, setShowModal] = useState<boolean>(false)
 
     const [formData, setFormData] = useState({
         id: null,
         name: "",
+        date: "",
         completed: false,
     })
 
     const [listId, setListId] = useState<any>([])
-    const [date, setDate] = useState("");
 
     const debounceInput = useDebounce(search, 1000);
 
-    const {
-        currentPage,
-        totalPages,
-        currentItems,
-        nextPage,
-        prevPage,
-        goToPage,
-        hasPrev,
-        hasNext,
-    } = usePagination(filterData, 5); // 5 items per page
+    // const {
+    //     currentPage,
+    //     totalPages,
+    //     currentItems,
+    //     nextPage,
+    //     prevPage,
+    //     goToPage,
+    //     hasPrev,
+    //     hasNext,
+    // } = usePagination(filterData, 5); // 5 items per page
 
     const handleChange = (e: any) => {
         const { name, value } = e.target;
@@ -75,6 +77,7 @@ export default function ToDoComponent() {
             const newTodo = {
                 id: Date.now(),
                 name: formData.name.trim(),
+                date: formData.date.trim(),
                 completed: false,
             };
 
@@ -86,6 +89,7 @@ export default function ToDoComponent() {
         setFormData({
             id: null,
             name: "",
+            date: "",
             completed: false,
         });
 
@@ -93,6 +97,7 @@ export default function ToDoComponent() {
         const timeOut = setTimeout(() => {
             setSuccess(false)
             setLoading(false)
+            setShowModal(false)
         }, 1000)
 
         return () => clearTimeout(timeOut)
@@ -102,6 +107,7 @@ export default function ToDoComponent() {
         setFormData({
             id: todo.id,
             name: todo.name,
+            date: todo.date,
             completed: todo.completed,
         });
     };
@@ -133,6 +139,9 @@ export default function ToDoComponent() {
         setData(data?.filter((prev: any) => prev?.id !== id))
     };
 
+    // CLOSE MODAL
+    const handleClose = () => setShowModal(false);
+
     // SORTING
     const handleSorting = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const direction = e?.target.value;
@@ -162,6 +171,7 @@ export default function ToDoComponent() {
         setFormData({
             id: null,
             name: "",
+            date: "",
             completed: false,
         });
     };
@@ -264,44 +274,26 @@ export default function ToDoComponent() {
         <div>
             <div style={{
                 display: "flex",
-                gap: "10px",
+                justifyContent: "space-between",
+                alignItems: "center"
             }}>
-                <InputComponent
-                    inputId='todo'
-                    inputName="name"
-                    labelName='ToDo'
-                    inputType='text'
-                    inputValue={formData?.name}
-                    onChange={handleChange}
-                />
-                <div style={{
-                    display: "flex",
-                    gap: "5px",
-                    width: "50%",
-                    height: "100%",
-                    marginTop: "auto"
-                }}>
-                    <button
-                        onClick={handleSubmit}
-                        className="big-button"
-                        style={{
-                            backgroundColor: formData?.name !== "" ? "rgb(120, 120, 120)" : "rgb(120, 120, 120, 0.6)"
-                        }}
-                        disabled={formData?.name === ""}
-                    >
-                        {formData?.id ? "Ubah" : "Tambah"}
-                    </button>
-                    {formData.id !== null && (
-                        <button
-                            onClick={handleCancel}
-                            className="big-button" style={{
-                                backgroundColor: formData?.name !== "" ? "rgb(120, 120, 120)" : "rgb(120, 120, 120, 0.6)"
-                            }}>
-                            Batal
-                        </button>
-                    )}
-                </div>
+                <h3>Tambah Data Baru</h3>
+                <button
+                    className="simple-button blue-color"
+                    onClick={() => setShowModal((prev) => !prev)}
+                >
+                    Tambah
+                </button>
             </div>
+            {showModal && (
+                <ModalDialogComponent
+                    formData={formData}
+                    handleChange={handleChange}
+                    handleSubmit={handleSubmit}
+                    handleCancel={handleCancel}
+                    handleClose={handleClose}
+                />
+            )}
             <div style={{
                 display: "flex",
                 flexDirection: "column",

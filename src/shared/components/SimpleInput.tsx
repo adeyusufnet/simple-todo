@@ -22,8 +22,8 @@ export default function InputComponent({
                 <input
                     id={inputId}
                     name={inputName}
-                    type={inputType}
-                    placeholder="search something"
+                    type={inputType || "text"}
+                    placeholder="Placeholder"
                     className="input-search"
                     value={inputValue}
                     onChange={onChange}
