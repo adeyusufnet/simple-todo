@@ -24,7 +24,7 @@ const usePagination = (items: any, itemsPerPage = 10) => {
         setCurrentPage((prev) => Math.max(prev - 1, 1));
     };
 
-    const goToPage = (pageNumber) => {
+    const goToPage = (pageNumber: any) => {
         const pageIndex = Math.max(1, Math.min(pageNumber, totalPages));
         setCurrentPage(pageIndex);
     };

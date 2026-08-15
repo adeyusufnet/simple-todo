@@ -17,7 +17,7 @@ export default function SearchComponent({
 }: SearchProps) {
     return (
         <div className="search-container">
-            <label htmlFor={inputId}>{labelName}</label>
+            <label htmlFor={inputId} className="label-search">{labelName}</label>
             <div className="input-container">
                 <input
                     id={inputId}

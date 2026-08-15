@@ -4,6 +4,7 @@ import InputComponent from "./SimpleInput";
 import { usePagination } from "../hooks/pagination";
 import PaginationComponent from "./Pagination";
 import SearchComponent from "./Search";
+import DatePickerComponent from "./DatePicker";
 
 export default function ToDoComponent() {
     const [data, setData] = useState(() => {
@@ -22,6 +23,7 @@ export default function ToDoComponent() {
     })
 
     const [listId, setListId] = useState<any>([])
+    const [date, setDate] = useState("");
 
     const debounceInput = useDebounce(search, 1000);
 
@@ -127,7 +129,9 @@ export default function ToDoComponent() {
     };
 
     // DELETE
-    const handleDelete = (id: any) => setData(data.filter((todo: any) => todo.id !== id));
+    const handleDelete = (id: any) => {
+        setData(data?.filter((prev: any) => prev?.id !== id))
+    };
 
     // SORTING
     const handleSorting = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -172,20 +176,21 @@ export default function ToDoComponent() {
         }
     }
 
-    const cardList = () => {
+    const cardList = (data: any, isCompleted = false) => {
         return (
             <>
-                {currentItems?.map((result: any) => (
+                {Array.isArray(data) && data?.map((result: any) => (
                     <div style={{
                         display: "flex",
                         gap: "10px",
                         width: "100%"
                     }} key={result?.id}>
                         <div className="simple-card" style={{
-                            backgroundColor: result?.completed ? "rgb(239, 241, 255)" : "white",
-                            border: `1px solid ${result?.completed ? "rgb(38, 53, 165)" : "white"}`,
-                            width: "100%"
-                        }} key={result?.id} onClick={() => toggleTodo(result?.id)}>
+                            backgroundColor: result?.completed && !isCompleted ? "rgb(239, 241, 255)" : "white",
+                            border: `1px solid ${result?.completed && !isCompleted ? "rgb(38, 53, 165)" : "white"}`,
+                            width: "100%",
+                            cursor: isCompleted ? "default" : "pointer"
+                        }} key={result?.id} onClick={() => !isCompleted && toggleTodo(result?.id)}>
                             <span
                                 className={result.completed ? "completed" : ""}
                                 style={{
@@ -196,14 +201,16 @@ export default function ToDoComponent() {
                                 {result.name}
                             </span>
                         </div>
-                        <div style={{ display: "flex", gap: "2px" }}>
-                            <button className="simple-button blue-color" onClick={() => handleEdit(result)}>
-                                Edit
-                            </button>
-                            <button className="simple-button red-color" onClick={() => handleDelete(result.id)}>
-                                Hapus
-                            </button>
-                        </div>
+                        {!isCompleted && (
+                            <div style={{ display: "flex", gap: "5px" }}>
+                                <button className="simple-button blue-color" onClick={() => handleEdit(result)}>
+                                    Edit
+                                </button>
+                                <button className="simple-button red-color" onClick={() => handleDelete(result.id)}>
+                                    Hapus
+                                </button>
+                            </div>
+                        )}
                     </div>
                 ))}
             </>
@@ -240,16 +247,15 @@ export default function ToDoComponent() {
         )
     }
 
+    const completedTask = [...data]?.filter((todo) => Boolean(todo?.completed))
+
     useEffect(() => {
-        if (data?.length > 0) {
-            localStorage.setItem("todos", JSON.stringify(data))
+        localStorage.setItem("todos", JSON.stringify(data))
+        const updateData = data
+            .filter((todo: any) => todo.completed)
+            .map((todo: any) => todo.id)
 
-            const updateData = data
-                .filter((todo: any) => todo.completed)
-                .map((todo: any) => todo.id)
-
-            setListId(updateData)
-        }
+        setListId(updateData)
     }, [data])
 
     useEffect(() => { getFilterData() }, [debounceInput, data])
@@ -317,6 +323,12 @@ export default function ToDoComponent() {
                     inputValue={search || ""}
                     onChange={(value: any) => setSearch(value)}
                 />
+                {/* <DatePickerComponent
+                    label="Tanggal lahir"
+                    value={date}
+                    onChange={(newDate: any) => setDate(newDate)}
+                    required
+                /> */}
                 {dropdownElement()}
                 <div style={{
                     display: "flex",
@@ -351,11 +363,26 @@ export default function ToDoComponent() {
                 {!loading && filterData?.length === 0 && <span>Yah, datanya gak ada...</span>}
                 {!loading && filterData?.length > 0 && (
                     <Suspense fallback={<span>loading element</span>}>
-                        {cardList()}
+                        {cardList(filterData)}
                     </Suspense>
                 )}
             </div>
-            {!loading && filterData?.length !== 0 && (
+
+            <div style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-start",
+                gap: "10px",
+                marginTop: "30px",
+                width: "100%",
+            }}>
+                <h3>Task Completed: {completedTask?.length || 0}</h3>
+                {completedTask?.length > 0 && cardList(completedTask, true)}
+            </div>
+
+
+
+            {/* {!loading && filterData?.length !== 0 && (
                 <PaginationComponent
                     currentPage={currentPage}
                     totalPages={totalPages}
@@ -366,7 +393,7 @@ export default function ToDoComponent() {
                     hasPrev={hasPrev}
                     hasNext={hasNext}
                 />
-            )}
+            )} */}
         </div>
     )
 }

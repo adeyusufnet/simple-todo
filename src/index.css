@@ -8,6 +8,7 @@
   --accent-bg: rgba(170, 59, 255, 0.1);
   --accent-border: rgba(170, 59, 255, 0.5);
   --social-bg: rgba(244, 243, 236, 0.5);
+  --blue-color: rgb(67, 67, 203);
   --shadow:
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
@@ -76,6 +77,49 @@
   position: relative;
 }
 
+.container-menu {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: white;
+  padding: 20px;
+  box-sizing: border-box;
+  z-index: 1000;
+  max-width: 460px;
+  width: 100%;
+  border-radius: 20px;
+}
+
+.content-menu {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 500px;
+}
+
+.menu-link {
+  display: flex;
+  justify-content: center;
+  padding: 10px 15px;
+  box-sizing: border-box;
+  border-radius: 5px;
+  border: none;
+  outline: none;
+  text-decoration: none;
+  width: 100%;
+}
+
+.menu-link:hover {
+  color: var(--blue-color);
+  transition: all 0.5s ease-in;
+}
+
 .search-container {
   display: flex;
   gap: 5px;
@@ -87,6 +131,7 @@
 
 label {
   font-size: 16px;
+  font-weight: 600;
 }
 
 .input-search {
@@ -131,6 +176,7 @@ label {
   border-radius: 10px;
   outline: none;
   border: none;
+  cursor: pointer;
 }
 
 .big-button {
@@ -141,12 +187,18 @@ label {
   outline: none;
   border: none;
   color: white;
+  cursor: pointer;
 }
 
 .alert {
   padding: 20px 10px;
   border-radius: 10px;
   width: 100%;
+  max-width: 350px;
+  position: fixed;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .blue-color {
@@ -163,6 +215,257 @@ label {
 
 .border-green {
   border: 1px solid rgb(16, 156, 16);
+}
+
+.date-picker {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  position: relative;
+  width: 100%;
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+.date-picker__label {
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.date-picker__required {
+  margin-left: 3px;
+  color: #dc2626;
+}
+
+.date-picker__input-wrapper {
+  display: flex;
+  align-items: center;
+  height: 42px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #fff;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.date-picker__input-wrapper:focus-within {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgb(37 99 235 / 10%);
+}
+
+.date-picker__input-wrapper--error {
+  border-color: #dc2626;
+}
+
+.date-picker__input-wrapper--error:focus-within {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgb(220 38 38 / 10%);
+}
+
+.date-picker__input-wrapper--disabled {
+  background: #f3f4f6;
+  cursor: not-allowed;
+}
+
+.date-picker__input {
+  width: 100%;
+  height: 100%;
+  padding: 0 12px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #111827;
+  font-size: 14px;
+}
+
+.date-picker__input::placeholder {
+  color: #9ca3af;
+}
+
+.date-picker__calendar-button {
+  width: 42px;
+  height: 100%;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.date-picker__calendar-button:disabled {
+  cursor: not-allowed;
+}
+
+.date-picker__error {
+  margin-top: 5px;
+  color: #dc2626;
+  font-size: 12px;
+}
+
+.date-picker__calendar {
+  position: absolute;
+  z-index: 100;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 280px;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow:
+    0 10px 25px rgb(0 0 0 / 10%),
+    0 4px 6px rgb(0 0 0 / 5%);
+}
+
+.date-picker__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.date-picker__month {
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: capitalize;
+  color: #111827;
+}
+
+.date-picker__nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #374151;
+  cursor: pointer;
+  font-size: 24px;
+}
+
+.date-picker__nav:hover {
+  background: #f3f4f6;
+}
+
+.date-picker__weekdays,
+.date-picker__days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.date-picker__weekdays {
+  margin-bottom: 4px;
+}
+
+.date-picker__weekdays>div {
+  text-align: center;
+  color: #6b7280;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.date-picker__day {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  margin: 1px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #1f2937;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.date-picker__day:hover {
+  background: #eff6ff;
+}
+
+.date-picker__day--empty {
+  pointer-events: none;
+}
+
+.date-picker__day--today {
+  font-weight: 700;
+  box-shadow: inset 0 0 0 1px #2563eb;
+}
+
+.date-picker__day--selected {
+  background: #2563eb;
+  color: #fff;
+}
+
+.date-picker__day--selected:hover {
+  background: #1d4ed8;
+}
+
+.date-picker__day--holiday {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.date-picker__day--holiday::after {
+  content: "";
+  position: absolute;
+  bottom: 2px;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #dc2626;
+}
+
+.date-picker__day--selected.date-picker__day--holiday {
+  color: #fff;
+}
+
+.date-picker__day--selected.date-picker__day--holiday::after {
+  background: #fff;
+}
+
+.date-picker__day--disabled {
+  color: #d1d5db;
+  cursor: not-allowed;
+}
+
+.date-picker__day--disabled:hover {
+  background: transparent;
+}
+
+.date-picker__loading {
+  margin-top: 8px;
+  color: #6b7280;
+  font-size: 11px;
+  text-align: center;
+}
+
+.date-picker__legend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid #f3f4f6;
+  color: #6b7280;
+  font-size: 11px;
+}
+
+.date-picker__legend-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #dc2626;
 }
 
 ::-webkit-scrollbar {

@@ -3,11 +3,12 @@ import HomepageComponent from "./Home";
 import { ListRoutes } from "../utils/ListRoutes";
 import { Suspense } from "react";
 import LoadingComponent from "./Loading";
+import ToDoComponent from "./ToDo";
 
 export default function NavigationComponent() {
     return (
         <Routes>
-            <Route path="/" element={<HomepageComponent />} />
+            <Route path="/" element={<ToDoComponent />} />
             {Array?.isArray(ListRoutes()) && ListRoutes()?.map((route, index) => {
                 return (
                     <Route
